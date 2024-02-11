@@ -1,31 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 public class PlayerCombat : CharacterCombat
 {
     [SerializeField]
-    private Transform projectileTransform;
+    private CanShoot canShoot;
     [SerializeField]
-    private GameObject projectile;
-    /*[SerializeField]
-    private GameObject chargedProjectile;*/
+    private Rigidbody2D rb;
+
+    public PlayerCombat(ScoreManager _scoreManager, TimeManager _timemanager, MainMenu _mainmenu) : base(_scoreManager, _timemanager, _mainmenu)
+    {
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void ShootProjectile()
-    {
-        //if hold for X amount of time instantiate the stronger projectile, else normal projectile
-        Instantiate(projectile, projectileTransform);
+        SetupStats();
     }
 }

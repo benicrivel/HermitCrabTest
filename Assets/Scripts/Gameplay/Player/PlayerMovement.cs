@@ -1,22 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour
-{
-    private Vector2 movement;
-    [SerializeField]
-    private float moveSpeed = 3f;
+public class PlayerMovement : CharacterMovement
+{   
     [SerializeField]
     private Transform groundCheck;
     [SerializeField]
     private LayerMask groundLayer;
     [SerializeField]
-    private Rigidbody2D rb;
-    [SerializeField]
     private float jumpingPower;
-    private bool isFacingRight = true;
+    private bool isGrounded = false;    
 
     //It's called when the player moves the joystick
     public void PlayerInput(InputAction.CallbackContext context)
@@ -25,27 +21,22 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private void Update()
-    {
-        //Move the player based on the the joystick
-        rb.velocity = new Vector2(movement.x * moveSpeed, rb.velocity.y);
+    {   
+        CheckGround();
 
-        //Checks which direction the player is facing and if it needs to be flipped
-        if (!isFacingRight && movement.x > 0f)
-        {
-            Flip();
-        }
-        else if (isFacingRight && movement.x < 0f)
-        {
-            Flip();
-        }
+        CheckFlip();
+    }
 
-
+    private void FixedUpdate()
+    {                       
+        MovementVelocity();
     }
 
     //Checks if the player is touching the ground
-    private bool IsGrounded()
+    private void CheckGround()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+        animator.SetBool("isJumping", !isGrounded);
     }
 
     //Jump using the Player Input System
@@ -57,18 +48,10 @@ public class PlayerMovement : MonoBehaviour
     //Base form of the jump so that it's able to be called by the UI button
     public void JumpButton()
     {
-        if (IsGrounded())
+        if (isGrounded)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpingPower);
+            isGrounded = false;
         }
-    }
-
-    //Makes the character faces the oposite direction when moving
-    private void Flip()
-    {
-        isFacingRight = !isFacingRight;
-        Vector3 localScale = transform.localScale;
-        localScale.x *= -1f;
-        transform.localScale = localScale;
-    }
+    }    
 }

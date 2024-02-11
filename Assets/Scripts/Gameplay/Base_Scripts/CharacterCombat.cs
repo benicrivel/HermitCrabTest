@@ -1,18 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 public class CharacterCombat : MonoBehaviour
 {
     [SerializeField]
     private CharacterBase characterBase;
 
-    private int maxHealth;
-    private int currentHealth;
-    private int attackDamage;
+    protected int maxHealth;
+    protected int currentHealth;
+    protected int attackDamage;
 
     [SerializeField]
-    private Animator animator;
+    protected Animator animator;
+
+    [Inject] ScoreManager scoreManager;
+    [Inject] TimeManager timeManager;
+    [Inject] MainMenu mainMenu;
+    [SerializeField] GameObject deathMenu;
+
+    public CharacterCombat (ScoreManager _scoreManager, TimeManager _timemanager, MainMenu _mainmenu)
+    {
+        scoreManager = _scoreManager;
+        timeManager = _timemanager;
+        mainMenu = _mainmenu;
+    }
+
+    //inject points manager
+    //inject DeathMenu
 
     void Start()
     {
@@ -20,20 +36,32 @@ public class CharacterCombat : MonoBehaviour
     }
 
     //Passes the stats from the ScriptableObject to the character and sets up the rest of the variables
-    private void SetupStats()
+    protected void SetupStats()
     {
-        maxHealth = characterBase.maxHealth;
+        maxHealth = characterBase.GetMaxHealth();
         currentHealth = maxHealth;
-        attackDamage = characterBase.attackDamage;
+        attackDamage = characterBase.GetAttackDamage();
         animator = FindAnyObjectByType<Animator>();
     }
 
     //Method to be called when the character is damaged
     public void TakeDamage(int damage)
     {
+        //ApplyKnockback(collisionDirection);
         currentHealth -= damage;
-        if(currentHealth < 0) 
+        Debug.Log("currenthealth: " + currentHealth);
+        if(currentHealth <= 0) 
         {
+            if(tag == "Enemy")
+            {
+                scoreManager.IncreaseScore(100);
+                timeManager.IncreaseTime(5);
+            }
+            else if(tag == "Player")
+            {
+                mainMenu.OpenPauseMenu(deathMenu);
+            }
+            //if enemy give points
             //If the character has died it'll be deleted from the scene
             Destroy(gameObject);
         }
