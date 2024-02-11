@@ -11,7 +11,8 @@ public class TimeManager : MonoBehaviour
     [SerializeField]
     private TMP_Text decimalTimeText;
 
-    private float timeLeft;
+    [SerializeField]
+    private float timeLeft = 15;
 
     [Inject] MainMenu mainMenu;
     [SerializeField] GameObject deathMenu;
